@@ -1,6 +1,10 @@
 package com.example.lutemonapp;
 
-public abstract class Lutemon {
+import java.io.Serializable;
+
+public abstract class Lutemon implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected String name;
     protected String color;
     protected int attack;
@@ -47,6 +51,9 @@ public abstract class Lutemon {
         int damage = attackValue - defense;
         if (damage > 0) {
             health -= damage;
+        }
+        if (health < 0) {
+            health = 0;
         }
     }
 
@@ -118,4 +125,9 @@ public abstract class Lutemon {
     public int getId() {
         return id;
     }
+
+    // 你可以根据需要添加一个 getImage() 抽象方法，子类实现它来返回对应图片
+    public abstract int getImage();
 }
+
+

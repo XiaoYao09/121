@@ -1,13 +1,18 @@
 package com.example.lutemonapp;
 
-import java.util.ArrayList;
+import android.content.Context;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 
-public class Storage {
+
+public class Storage implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private static Storage instance = null;
 
-    // 区域：home、training、battle
     private HashMap<Integer, Lutemon> home = new HashMap<>();
     private HashMap<Integer, Lutemon> training = new HashMap<>();
     private HashMap<Integer, Lutemon> battle = new HashMap<>();
@@ -21,13 +26,11 @@ public class Storage {
         return instance;
     }
 
-    // 添加 Lutemon 到 home 区域，并统计创建
     public void addLutemonToHome(Lutemon lutemon) {
         home.put(lutemon.getId(), lutemon);
-        StatisticsManager.getInstance().incrementCreated(); // ✅ 记录创建数
+        StatisticsManager.getInstance().incrementCreated();
     }
 
-    // 移动 Lutemon 到其他区域
     public void moveLutemon(int id, String from, String to) {
         Lutemon l = null;
         if (from.equals("home")) {
@@ -38,48 +41,64 @@ public class Storage {
             l = battle.remove(id);
         }
 
-        if (l == null) return;
-
-        if (to.equals("home")) {
-            home.put(id, l);
-        } else if (to.equals("training")) {
-            training.put(id, l);
-        } else if (to.equals("battle")) {
-            battle.put(id, l);
-            StatisticsManager.getInstance().incrementBattle(l.getId()); // ✅ 记录战斗数
+        if (l != null) {
+            if (to.equals("home")) {
+                home.put(id, l);
+            } else if (to.equals("training")) {
+                training.put(id, l);
+            } else if (to.equals("battle")) {
+                battle.put(id, l);
+            }
         }
     }
 
-    // 根据区域获取 Lutemon 列表
-    public List<Lutemon> getLutemonsByArea(String area) {
+    public HashMap<Integer, Lutemon> getHome() {
+        return home;
+    }
+
+    public HashMap<Integer, Lutemon> getTraining() {
+        return training;
+    }
+
+    public HashMap<Integer, Lutemon> getBattle() {
+        return battle;
+    }
+
+    public void saveData(Context context) {
+        try {
+            FileOutputStream fos = context.openFileOutput("lutemon_data.dat", Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(instance);
+            oos.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadData(Context context) {
+        try {
+            FileInputStream fis = context.openFileInput("lutemon_data.dat");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            instance = (Storage) ois.readObject();
+            ois.close();
+            fis.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    public HashMap<Integer, Lutemon> getLutemonsByArea(String area) {
         switch (area) {
             case "home":
-                return new ArrayList<>(home.values());
+                return home;
             case "training":
-                return new ArrayList<>(training.values());
+                return training;
             case "battle":
-                return new ArrayList<>(battle.values());
+                return battle;
             default:
-                return new ArrayList<>();
+                return new HashMap<>();
         }
     }
-
-    // 根据 ID 获取 Lutemon（任意区域）
-    public Lutemon getLutemon(int id) {
-        if (home.containsKey(id)) return home.get(id);
-        if (training.containsKey(id)) return training.get(id);
-        if (battle.containsKey(id)) return battle.get(id);
-        return null;
-    }
-
-    // 删除 Lutemon（任意区域）
-    public void removeLutemon(int id) {
-        home.remove(id);
-        training.remove(id);
-        battle.remove(id);
-    }
-
-    // 返回所有 Lutemon（用于统计页面）
     public List<Lutemon> getAllLutemons() {
         List<Lutemon> all = new ArrayList<>();
         all.addAll(home.values());
@@ -87,6 +106,8 @@ public class Storage {
         all.addAll(battle.values());
         return all;
     }
+
+
 }
 
 

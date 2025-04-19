@@ -1,5 +1,6 @@
 package com.example.lutemonapp;
 
+import java.util.ArrayList;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,7 +21,8 @@ public class LutemonListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // 初始加载 home 区域的 Lutemon
-        List<Lutemon> homeLutemons = Storage.getInstance().getLutemonsByArea("home");
+        List<Lutemon> homeLutemons = new ArrayList<>(Storage.getInstance().getLutemonsByArea("home").values());
+
         adapter = new LutemonAdapter(homeLutemons);
         recyclerView.setAdapter(adapter);
     }
@@ -30,7 +32,7 @@ public class LutemonListActivity extends AppCompatActivity {
         super.onResume();
 
         // 每次回到这个页面时刷新 home 区域数据
-        List<Lutemon> updatedHomeLutemons = Storage.getInstance().getLutemonsByArea("home");
+        List<Lutemon> updatedHomeLutemons = new ArrayList<>(Storage.getInstance().getLutemonsByArea("home").values());
         adapter.updateData(updatedHomeLutemons);
     }
 }

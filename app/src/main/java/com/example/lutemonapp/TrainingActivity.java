@@ -6,6 +6,8 @@ import android.widget.*;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.List;
+import java.util.ArrayList;
+
 
 public class TrainingActivity extends AppCompatActivity {
 
@@ -27,7 +29,8 @@ public class TrainingActivity extends AppCompatActivity {
         btnMoveHome = findViewById(R.id.btnMoveHome);
         btnSelect = findViewById(R.id.btnTrainSelect);
 
-        List<Lutemon> trainingLutemons = Storage.getInstance().getLutemonsByArea("training");
+        List<Lutemon> trainingLutemons = new ArrayList<>(Storage.getInstance().getLutemonsByArea("training").values());
+
 
         if (trainingLutemons.size() == 0) {
             txtTrainName.setText("No Lutemons in training");
@@ -66,7 +69,8 @@ public class TrainingActivity extends AppCompatActivity {
     }
 
     private void showSelectionDialog() {
-        List<Lutemon> trainingLutemons = Storage.getInstance().getLutemonsByArea("training");
+        List<Lutemon> trainingLutemons = new ArrayList<>(Storage.getInstance().getLutemonsByArea("training").values());
+
         String[] lutemonNames = new String[trainingLutemons.size()];
         for (int i = 0; i < trainingLutemons.size(); i++) {
             lutemonNames[i] = trainingLutemons.get(i).getName() + " (" + trainingLutemons.get(i).getColor() + ")";
